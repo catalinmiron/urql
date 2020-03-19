@@ -1,14 +1,10 @@
 const seen = new Set();
 
 const stringify = (x: any): string => {
-  if (x === undefined) {
-    return '';
-  } else if (typeof x == 'number') {
-    return isFinite(x) ? '' + x : 'null';
-  } else if (typeof x !== 'object') {
-    return JSON.stringify(x);
-  } else if (x === null) {
+  if (x === null) {
     return 'null';
+  } else if (typeof x !== 'object') {
+    return JSON.stringify(x) || '';
   } else if (x.toJSON) {
     return x.toJSON();
   }
@@ -25,7 +21,7 @@ const stringify = (x: any): string => {
     out += ']';
     return out;
   } else if (seen.has(x)) {
-    throw new TypeError('Converting circular structure to JSON');
+    return 'null';
   }
 
   const keys = Object.keys(x).sort();
@@ -35,7 +31,7 @@ const stringify = (x: any): string => {
   for (let i = 0, l = keys.length; i < l; i++) {
     const key = keys[i];
     const value = stringify(x[key]);
-    if (value.length !== 0) {
+    if (value) {
       if (out.length > 1) out += ',';
       out += stringify(key) + ':' + value;
     }
